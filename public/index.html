@@ -1,440 +1,721 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Hiring Desk</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap">
 <style>
-  :root {
-    --ink: #1d2430; --muted: #5d6675; --line: #dfe3ea; --bg: #f5f6f8; --card: #fff;
-    --brand: #1f5eff; --brand-ink: #fff; --ok: #12805c; --warn: #b26a00; --bad: #c0392b;
-  }
-  * { box-sizing: border-box; }
-  body { margin: 0; font: 16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; color: var(--ink); background: var(--bg); }
-  header { background: var(--ink); color: #fff; padding: 14px 20px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-  header h1 { margin: 0; font-size: 18px; letter-spacing: .3px; }
-  header .timer { font-variant-numeric: tabular-nums; font-weight: 700; background: #ffffff1a; padding: 4px 10px; border-radius: 6px; }
-  header .timer.low { background: var(--bad); }
-  main { max-width: 860px; margin: 24px auto; padding: 0 16px; }
-  .card { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 22px; margin-bottom: 18px; }
-  h2 { margin: 0 0 6px; font-size: 22px; }
-  h3 { margin: 0 0 10px; font-size: 18px; }
-  p.muted, .muted { color: var(--muted); }
-  label { display: block; font-weight: 600; margin: 12px 0 4px; }
-  input[type=text], input[type=tel], input[type=email], input[type=password], input[type=number], textarea, select {
-    width: 100%; padding: 10px 12px; border: 1px solid var(--line); border-radius: 8px; font: inherit; background: #fff;
-  }
-  textarea { min-height: 120px; resize: vertical; }
-  button { font: inherit; font-weight: 600; border: 0; border-radius: 8px; padding: 10px 18px; cursor: pointer; background: var(--brand); color: var(--brand-ink); }
-  button.secondary { background: #e8ecf3; color: var(--ink); }
-  button.danger { background: #fbe9e7; color: var(--bad); }
-  button:disabled { opacity: .5; cursor: not-allowed; }
-  .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
-  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0 14px; }
-  @media (max-width: 600px) { .grid2 { grid-template-columns: 1fr; } }
-  .q { border-top: 1px solid var(--line); padding: 14px 0; }
-  .q:first-of-type { border-top: 0; }
-  .q .opt { display: flex; gap: 8px; align-items: center; font-weight: 400; margin: 6px 0; cursor: pointer; }
-  .passage { background: #f0f3f9; border-radius: 8px; padding: 14px; user-select: none; -webkit-user-select: none; }
-  .steps { display: flex; gap: 6px; margin-bottom: 16px; }
-  .steps span { flex: 1; height: 6px; border-radius: 3px; background: var(--line); }
-  .steps span.on { background: var(--brand); }
-  .error { color: var(--bad); font-weight: 600; min-height: 1.5em; }
-  .hidden { display: none !important; }
-  ol.tasks li { margin-bottom: 6px; }
-  table { width: 100%; border-collapse: collapse; font-size: 14px; }
-  th, td { text-align: left; padding: 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
-  th { color: var(--muted); font-weight: 600; }
-  .pill { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 12px; font-weight: 700; background: #eef1f6; }
-  .pill.hire { background: #e3f5ee; color: var(--ok); }
-  .pill.maybe { background: #fff3e0; color: var(--warn); }
-  .pill.reject { background: #fbe9e7; color: var(--bad); }
-  .cand { border: 1px solid var(--line); border-radius: 10px; padding: 14px; margin-bottom: 12px; }
-  .cand > summary { cursor: pointer; display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; list-style: none; }
-  .cand > summary::-webkit-details-marker { display: none; }
-  .score { font-size: 20px; font-weight: 800; }
-  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin: 12px 0; }
-  .stat { background: #f5f7fb; border-radius: 8px; padding: 10px; }
-  .stat b { display: block; font-size: 18px; }
-  .right { color: var(--ok); } .wrong { color: var(--bad); }
-  .link { background: none; color: var(--brand); padding: 0; text-decoration: underline; }
+/* Layout: one centred working column; candidate side is a stepped test with a sticky timer bar, HR side is a list → scoring sheet. */
+:root{
+  --bg:#F3F5F9; --surface:#FFFFFF; --sunk:#EBEEF4; --ink:#141A2B; --muted:#5A6378; --line:#D9DEE8;
+  --accent:#2F46C8; --accent-ink:#FFFFFF; --accent-soft:#E6E9FB;
+  --good:#1E7F48; --good-soft:#E1F2E8; --warn:#9A5B00; --warn-soft:#FBEFD9; --bad:#BC342C; --bad-soft:#FBE5E3;
+  --display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --body:"IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --mono:"IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --r:10px; color-scheme:light;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){:root{
+  --bg:#0E121D; --surface:#161B29; --sunk:#1D2334; --ink:#E7EAF2; --muted:#9AA3B8; --line:#2B3248;
+  --accent:#8E9EFF; --accent-ink:#0E121D; --accent-soft:#232B52;
+  --good:#5CCB8B; --good-soft:#163122; --warn:#F0B451; --warn-soft:#33270F; --bad:#FF8B82; --bad-soft:#3A1A18;
+  color-scheme:dark;}}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 var(--body);}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.wrap{max-width:880px;margin:0 auto;padding-block:20px 64px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1,h2,h3{font-family:var(--display);line-height:1.15;text-wrap:balance;margin:0}
+h1{font-size:clamp(28px,5vw,40px);font-weight:700;letter-spacing:-.01em}
+h2{font-size:22px;font-weight:700}
+h3{font-size:17px;font-weight:600}
+p{margin:0}
+.muted{color:var(--muted)}
+.small{font-size:13px}
+.eyebrow{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.stack{display:flex;flex-direction:column;gap:16px}
+.stack-s{display:flex;flex-direction:column;gap:8px}
+.row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.between{justify-content:space-between}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.brand{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding-bottom:16px;margin-bottom:20px;border-bottom:1px solid var(--line)}
+.logo{display:flex;align-items:center;gap:10px;font-family:var(--display);font-weight:700;font-size:18px}
+.logo-mark{width:30px;height:30px;border-radius:8px;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;font-family:var(--mono);font-size:13px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:20px}
+.sunk{background:var(--sunk);border-radius:8px;padding:14px 16px}
+.split{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}
+.split > *{min-width:0}
+button{font:inherit;cursor:pointer}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:0 18px;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font-weight:600}
+.btn:hover{border-color:var(--muted)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.primary:hover{filter:brightness(1.08)}
+.btn.danger{color:var(--bad);border-color:var(--bad)}
+.btn.ghost{border-color:transparent;background:transparent;color:var(--muted)}
+.btn.ghost:hover{color:var(--ink)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn.block{width:100%}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+label.f{display:flex;flex-direction:column;gap:6px;font-weight:500;font-size:14px}
+input[type=text],input[type=tel],input[type=email],input[type=password],input[type=search],select,textarea{font:inherit;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:10px 12px;min-height:44px;width:100%}
+textarea{min-height:120px;resize:vertical;line-height:1.5}
+input:focus,select:focus,textarea:focus{border-color:var(--accent);outline:none;box-shadow:0 0 0 3px var(--accent-soft)}
+.err{color:var(--bad);font-size:14px;font-weight:500}
+.note{border-left:3px solid var(--warn);background:var(--warn-soft);padding:10px 14px;border-radius:0 8px 8px 0;font-size:14px}
+.note.info{border-color:var(--accent);background:var(--accent-soft)}
+.note.bad{border-color:var(--bad);background:var(--bad-soft)}
+.door{display:flex;flex-direction:column;gap:14px;justify-content:space-between}
+.door .meta{display:flex;gap:16px;flex-wrap:wrap;font-size:13px;color:var(--muted)}
+.door.cand{border-top:4px solid var(--accent)}
+.door.hr{border-top:4px solid var(--ink)}
+.testbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:10px;margin-bottom:16px;border-bottom:1px solid var(--line)}
+.steps{display:flex;gap:6px;flex-wrap:wrap}
+.step{font-size:12px;font-weight:600;padding:4px 10px;border-radius:99px;background:var(--sunk);color:var(--muted)}
+.step.on{background:var(--accent);color:var(--accent-ink)}
+.step.done{background:var(--accent-soft);color:var(--accent)}
+.timers{display:flex;gap:8px;align-items:center}
+.timer{display:flex;flex-direction:column;align-items:center;font-family:var(--mono);font-size:20px;font-weight:600;font-variant-numeric:tabular-nums;padding:2px 12px;border-radius:8px;background:var(--surface);border:1px solid var(--line);line-height:1.2}
+.timer small{font-family:var(--body);font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.timer.low{color:var(--bad);border-color:var(--bad)}
+.q{display:flex;flex-direction:column;gap:10px;padding:16px 0;border:none;border-top:1px solid var(--line);margin:0;padding-inline:0}
+.q-head{display:flex;gap:10px;padding:0}
+.q-n{font-family:var(--mono);color:var(--muted);min-width:24px}
+.opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px;padding-left:34px}
+.opt{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--surface);cursor:pointer;min-width:0}
+.opt:hover{border-color:var(--muted)}
+.opt input{margin-top:3px;accent-color:var(--accent)}
+.opt.sel{border-color:var(--accent);background:var(--accent-soft)}
+.opt span{min-width:0;overflow-wrap:anywhere}
+.k{font-family:var(--mono);font-weight:600;color:var(--muted)}
+ol.tasks{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:14px;counter-reset:t}
+ol.tasks > li{counter-increment:t;display:grid;grid-template-columns:36px 1fr;gap:10px;align-items:start}
+ol.tasks > li::before{content:counter(t);font-family:var(--mono);font-weight:600;width:30px;height:30px;border-radius:50%;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center}
+ol.tasks > li > div{min-width:0}
+.tbl-wrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:600}
+td.r,th.r{text-align:right}
+.passage{font-size:17px;line-height:1.7;user-select:none;-webkit-user-select:none}
+.typebox{font-family:var(--mono);font-size:16px;min-height:160px}
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.toolbar > input{flex:1 1 220px;width:auto}
+.toolbar > select{flex:0 1 180px;width:auto}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{border:1px solid var(--line);background:var(--surface);color:var(--muted);border-radius:99px;padding:6px 12px;font-size:13px;font-weight:600;min-height:34px}
+.chip.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.cand-list{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);overflow:hidden}
+.cand-row{display:grid;grid-template-columns:1fr auto;gap:6px 16px;padding:14px 16px;border:none;border-top:1px solid var(--line);text-align:left;background:none;color:inherit;width:100%}
+.cand-row:first-child{border-top:none}
+.cand-row:hover{background:var(--sunk)}
+.cand-row .name{font-weight:600;font-size:16px}
+.cand-row .sub{font-size:13px;color:var(--muted)}
+.cand-row .score{font-family:var(--mono);font-size:20px;font-weight:600;text-align:right;font-variant-numeric:tabular-nums}
+.pill{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;padding:3px 10px;border-radius:99px;white-space:nowrap}
+.pill::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}
+.pill.prog{background:var(--sunk);color:var(--muted)}
+.pill.wait{background:var(--warn-soft);color:var(--warn)}
+.pill.done{background:var(--good-soft);color:var(--good)}
+.pill.bad{background:var(--bad-soft);color:var(--bad)}
+.counts{display:flex;gap:20px;flex-wrap:wrap}
+.counts div{display:flex;flex-direction:column}
+.counts b{font-family:var(--mono);font-size:22px;font-variant-numeric:tabular-nums}
+.score-card{display:grid;grid-template-columns:auto 1fr;gap:20px;align-items:center}
+.big{font-family:var(--display);font-size:64px;font-weight:700;line-height:1;font-variant-numeric:tabular-nums}
+.big small{font-size:22px;color:var(--muted);font-weight:600}
+.bars{display:flex;flex-direction:column;gap:8px}
+.bar{display:grid;grid-template-columns:120px 1fr 64px;gap:10px;align-items:center;font-size:13px}
+.bar .track{height:8px;border-radius:99px;background:var(--sunk);overflow:hidden}
+.bar .fill{display:block;height:100%;background:var(--accent);border-radius:99px}
+.bar .v{font-family:var(--mono);text-align:right;font-variant-numeric:tabular-nums}
+.verdict{padding:12px 14px;border-radius:8px;font-weight:600}
+.verdict.good{background:var(--good-soft);color:var(--good)}
+.verdict.mid{background:var(--accent-soft);color:var(--accent)}
+.verdict.bad{background:var(--bad-soft);color:var(--bad)}
+.verdict.pend{background:var(--sunk);color:var(--muted)}
+.score-line{display:grid;grid-template-columns:1fr auto;gap:8px 16px;align-items:center;padding:12px 0;border-top:1px solid var(--line)}
+.score-line:first-child{border-top:none}
+.score-line > div{min-width:0}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--surface)}
+.seg button{border:none;border-left:1px solid var(--line);background:none;color:var(--ink);min-width:44px;min-height:40px;font-family:var(--mono);font-weight:600}
+.seg button:first-child{border-left:none}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
+.answer{background:var(--sunk);border-radius:6px;padding:8px 10px;white-space:pre-wrap;overflow-wrap:anywhere;font-size:14px}
+.answer.empty{color:var(--muted);font-style:italic}
+.expect{font-size:13px;color:var(--good)}
+.part-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap}
+.part-head .pts{font-family:var(--mono);font-size:18px;font-weight:600}
+.kv{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.kv div{display:flex;flex-direction:column;min-width:0}
+.kv b{font-weight:600;overflow-wrap:anywhere}
+.savebar{position:sticky;bottom:0;padding-block:12px calc(12px + env(safe-area-inset-bottom,0px));background:var(--bg);border-top:1px solid var(--line);display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;z-index:4}
+details summary{cursor:pointer;color:var(--accent);font-weight:600;font-size:14px}
+.pin{font-family:var(--mono);letter-spacing:.4em;font-size:22px;text-align:center}
+.center{max-width:400px;margin:40px auto 0}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:8px;font-weight:600;z-index:20;max-width:calc(100% - 32px)}
+@media (max-width:560px){
+  .opts{padding-left:0}
+  .score-card{grid-template-columns:1fr}
+  .bar{grid-template-columns:96px 1fr 56px}
+  .big{font-size:52px}
+  .score-line{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
 </style>
 </head>
 <body>
-<header>
-  <h1>Hiring Desk</h1>
-  <span id="timer" class="timer hidden">15:00</span>
-</header>
-
-<main>
-  <!-- ===== Welcome ===== -->
-  <section id="view-home" class="card">
-    <h2>Basic computer skills test</h2>
-    <p class="muted">This test takes about 15 minutes. You will do three tasks:</p>
-    <ol class="tasks">
-      <li><b>Quiz</b> – 10 short questions about using a computer.</li>
-      <li><b>Typing</b> – type a short paragraph as fast and as correctly as you can.</li>
-      <li><b>Excel</b> – make a small spreadsheet and email it to us.</li>
-    </ol>
-    <div class="grid2">
-      <div><label for="c-name">Full name *</label><input id="c-name" type="text" autocomplete="name" /></div>
-      <div><label for="c-phone">Phone number *</label><input id="c-phone" type="tel" autocomplete="tel" /></div>
-      <div><label for="c-email">Email</label><input id="c-email" type="email" autocomplete="email" /></div>
-      <div><label for="c-position">Job applied for</label><input id="c-position" type="text" /></div>
-    </div>
-    <p class="error" id="home-error"></p>
-    <div class="row">
-      <button id="start-btn">Start the test</button>
-      <button class="link" id="open-hr">Open HR area</button>
-    </div>
-  </section>
-
-  <!-- ===== Task 1: Quiz ===== -->
-  <section id="view-quiz" class="card hidden">
-    <div class="steps"><span class="on"></span><span></span><span></span></div>
-    <h2>Task 1 of 3: Quiz</h2>
-    <p class="muted">Choose one answer for each question.</p>
-    <div id="quiz"></div>
-    <p class="error" id="quiz-error"></p>
-    <button id="quiz-next">Next: Typing</button>
-  </section>
-
-  <!-- ===== Task 2: Typing ===== -->
-  <section id="view-typing" class="card hidden">
-    <div class="steps"><span class="on"></span><span class="on"></span><span></span></div>
-    <h2>Task 2 of 3: Typing</h2>
-    <p class="muted">Type the text below into the box exactly as shown. The clock starts when you type the first letter. Copy and paste is turned off.</p>
-    <p class="passage" id="passage"></p>
-    <textarea id="typed" spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off" placeholder="Start typing here..."></textarea>
-    <p class="muted" id="typing-live">0 words</p>
-    <button id="typing-next">Next: Excel</button>
-  </section>
-
-  <!-- ===== Task 3: Excel ===== -->
-  <section id="view-excel" class="card hidden">
-    <div class="steps"><span class="on"></span><span class="on"></span><span class="on"></span></div>
-    <h2>Task 3 of 3: Excel</h2>
-    <p>Open Microsoft Excel (or Google Sheets) on this computer and make this table:</p>
-    <ol>
-      <li>Row 1 headings: <b>Item</b>, <b>Quantity</b>, <b>Price</b>, <b>Total</b>.</li>
-      <li>Add 5 items in rows 2 to 6 (any items, any numbers).</li>
-      <li>In the <b>Total</b> column use a formula: Quantity × Price (for example <code>=B2*C2</code>).</li>
-      <li>In row 7, show the grand total of the Total column using <code>=SUM(...)</code>.</li>
-      <li>Make the heading row <b>bold</b>.</li>
-      <li>Save the file with your name, for example <code>Ravi-Kumar.xlsx</code>.</li>
-      <li>Email the file to <b id="excel-email">the HR team</b>, with your full name in the subject.</li>
-    </ol>
-    <label class="row" style="font-weight:400"><input type="checkbox" id="excel-sent" /> I have emailed the Excel file.</label>
-    <p class="error" id="submit-error"></p>
-    <button id="submit-btn">Submit my test</button>
-  </section>
-
-  <!-- ===== Done ===== -->
-  <section id="view-done" class="card hidden">
-    <h2>Thank you!</h2>
-    <p>Your test has been sent to the HR team. They will contact you soon.</p>
-    <button class="secondary" onclick="location.reload()">Back to start</button>
-  </section>
-
-  <!-- ===== HR login ===== -->
-  <section id="view-hr-login" class="card hidden">
-    <h2>HR area</h2>
-    <label for="hr-pin">PIN</label>
-    <input id="hr-pin" type="password" inputmode="numeric" autocomplete="current-password" />
-    <p class="error" id="hr-login-error"></p>
-    <div class="row">
-      <button id="hr-login-btn">Open</button>
-      <button class="secondary" id="hr-back">Back</button>
-    </div>
-  </section>
-
-  <!-- ===== HR dashboard ===== -->
-  <section id="view-hr" class="hidden">
-    <div class="card">
-      <div class="row" style="justify-content:space-between">
-        <h2>Candidates</h2>
-        <div class="row">
-          <button class="secondary" id="hr-refresh">Refresh</button>
-          <button class="secondary" id="hr-logout">Log out</button>
-        </div>
-      </div>
-      <p class="muted">Total score is out of 30: Quiz (10) + Typing (10, 40 net words per minute or more = full marks) + Excel (10, scored by you).</p>
-      <div id="hr-list"><p class="muted">Loading...</p></div>
-    </div>
-    <div class="card">
-      <h3>Settings</h3>
-      <label for="set-email">Email address candidates send the Excel file to</label>
-      <input id="set-email" type="email" />
-      <p class="muted" id="set-msg"></p>
-      <button id="set-save">Save settings</button>
-    </div>
-  </section>
-</main>
+<div class="wrap" id="app"><p class="muted">Loading…</p></div>
+<div class="toast" id="toast" hidden></div>
 
 <script>
-// Questions shown to candidates. The correct answers are kept on the server (QUIZ_KEY in api.mjs).
+/* ---------- Test content (answer keys stay on the server) ---------- */
 const QUIZ = [
-  { q: "Which keys copy selected text?", o: ["Ctrl + X", "Ctrl + C", "Ctrl + V", "Ctrl + Z"] },
-  { q: "What does Ctrl + Z do?", o: ["Saves the file", "Prints the page", "Undoes the last action", "Closes the program"] },
-  { q: "Which program is mainly used for spreadsheets?", o: ["Microsoft Excel", "Microsoft Word", "Paint", "Notepad"] },
-  { q: "Which file ends in the extension for a PDF document?", o: [".docx", ".xlsx", ".jpg", ".pdf"] },
-  { q: "In Excel, which formula adds the numbers in cells A1 to A5?", o: ["=ADD(A1:A5)", "=SUM(A1:A5)", "=TOTAL(A1-A5)", "=PLUS(A1,A5)"] },
-  { q: "An email from an unknown sender asks for your password. What should you do?", o: ["Reply with the password", "Click the link to check", "Do not reply; delete or report it", "Forward it to friends"] },
-  { q: "In an email, what does \"CC\" mean?", o: ["Carbon copy", "Check contents", "Close conversation", "Copy code"] },
-  { q: "Which keys save a file quickly?", o: ["Ctrl + P", "Ctrl + S", "Ctrl + A", "Ctrl + F"] },
-  { q: "On Windows, where do deleted files usually go first?", o: ["Desktop", "Downloads", "Documents", "Recycle Bin"] },
-  { q: "What does Ctrl + F do in most programs?", o: ["Opens a new file", "Prints", "Finds text", "Changes the font"] },
+ {"s": "Basic", "q": "Copy selected text", "o": ["Ctrl+C", "Ctrl+V", "Ctrl+P", "Ctrl+X"]},
+ {"s": "Basic", "q": "Undo your last mistake", "o": ["Ctrl+D", "Ctrl+Y", "Ctrl+U", "Ctrl+Z"]},
+ {"s": "Basic", "q": "Save a file", "o": ["Ctrl+W", "Ctrl+S", "Ctrl+N", "Ctrl+O"]},
+ {"s": "Basic", "q": "Open the Print window", "o": ["Ctrl+R", "Ctrl+T", "Ctrl+P", "Ctrl+I"]},
+ {"s": "Basic", "q": "A file you download usually goes to", "o": ["Recycle Bin", "Documents", "Downloads folder", "Desktop"]},
+ {"s": "Basic", "q": "Which one is an image file?", "o": ["product.jpg", "notes.docx", "invoice.pdf", "orders.xlsx"]},
+ {"s": "Basic", "q": "When you delete a file normally, where does it go first?", "o": ["Desktop", "It is gone forever", "Downloads folder", "Recycle Bin (Trash on a Mac)"]},
+ {"s": "Basic", "q": "To send a file with an email, you add it as", "o": ["Subject", "Attachment", "CC", "Signature"]},
+ {"s": "Basic", "q": "Which program is best for writing a letter?", "o": ["Paint", "Calculator", "Microsoft Excel", "Microsoft Word"]},
+ {"s": "Medium", "q": "Find a word on a web page or in a document", "o": ["Ctrl+E", "Ctrl+F", "Ctrl+H", "Ctrl+G"]},
+ {"s": "Medium", "q": "Switch between open windows", "o": ["Ctrl+Alt+Del", "Windows+L", "Alt+Tab", "Shift+Tab"]},
+ {"s": "Medium", "q": "Take a screenshot of part of the screen", "o": ["Windows+Shift+S", "Alt+F4", "Ctrl+P", "Ctrl+Shift+S"]},
+ {"s": "Medium", "q": "In Word, to change one word to another everywhere in the document, use", "o": ["Ctrl+R", "Ctrl+K", "Ctrl+F (Find)", "Ctrl+H (Find and Replace)"]},
+ {"s": "Medium", "q": "In Excel, cell B3 means", "o": ["Column 3, Row B", "Column B, Row 3", "Sheet B, Page 3", "Box 3 of sheet B"]},
+ {"s": "Medium", "q": "Formula to add cells A1 to A10", "o": ["=SUM(A1:A10)", "=A1-A10", "=ADD(A1:A10)", "=TOTAL(A1+A10)"]},
+ {"s": "Medium", "q": "To show only COD orders in a list, you use", "o": ["Bold", "Sort", "Filter", "Merge"]},
+ {"s": "Medium", "q": "Which is the strongest password?", "o": ["password", "123456", "rahul1995", "Ship@Desk#2026"]},
+ {"s": "Medium", "q": "In an email, CC means", "o": ["Customer Care", "A copy is sent to another person", "Close Copy", "Cancel"]},
+ {"s": "Medium", "q": "Which file type is best for sending a final bill that should not be changed?", "o": [".docx", ".xlsx", ".pdf", ".txt"]},
+ {"s": "Expert", "q": "An email from support@amaz0n-seller.co says your seller account is blocked and asks you to log in from a link. What should you do?", "o": ["The address is fake (a zero in place of the letter o): do not click, tell your manager", "It is safe if the Amazon logo is shown", "Reply and ask if it is real", "It is from Amazon, log in quickly"]},
+ {"s": "Expert", "q": "A cell in Excel shows ##### instead of a number. Why?", "o": ["The file is damaged", "The number is negative", "The formula is wrong", "The column is too narrow to show the number"]},
+ {"s": "Expert", "q": "You get a file named invoice.pdf.exe. What is it really?", "o": ["A PDF bill", "A program, which could be a virus", "An Excel file", "A picture"]},
+ {"s": "Expert", "q": "What does Shift+Delete do to a file on Windows?", "o": ["Renames it", "Moves it to the Recycle Bin", "Deletes it for good, without the Recycle Bin", "Makes a copy"]},
+ {"s": "Expert", "q": "In Excel, =A2*$B$1 is copied down to the rows below. What happens to $B$1?", "o": ["It changes to B2, B3 and so on", "It stays B1 in every row", "It becomes A1", "It shows an error"]},
+ {"s": "Expert", "q": "Which Excel function finds a product's price from another sheet using its SKU code?", "o": ["VLOOKUP", "AVERAGE", "SUM", "COUNTIF"]},
+ {"s": "Reasoning", "q": "What number comes next? 2, 6, 12, 20, 30, ?", "o": ["36", "40", "42", "44"]},
+ {"s": "Reasoning", "q": "You start packing at 3:30 pm. Each order takes 2 minutes. You have 45 orders and the courier comes at 5:00 pm. Will all orders be ready?", "o": ["No, 15 minutes short", "Yes, with 30 minutes to spare", "No, 1 hour short", "Yes, ready exactly at 5:00 pm"]},
+ {"s": "Reasoning", "q": "A courier charges Rs 45 for the first 500 g and Rs 40 for every extra 500 g or part of it. What is the charge for a 1.4 kg parcel?", "o": ["Rs 85", "Rs 112", "Rs 125", "Rs 165"]},
+ {"s": "Reasoning", "q": "Out of 200 orders, 30 were returned. What percent were returned?", "o": ["3%", "15%", "20%", "30%"]},
+ {"s": "Reasoning", "q": "Ravi packs more orders than Amit but fewer than Sunil. Neha packs more than Sunil. Who packs the most?", "o": ["Ravi", "Sunil", "Neha", "Amit"]},
 ];
+const LETTERS = ["a","b","c","d"];
+const TASKS = [
+ {t:"Folder and image", d:"FOLDER", c:"Folder on Desktop with the right name; image downloaded (not a screenshot), renamed iphone15_glass.jpg, inside the folder"},
+ {t:"Type and format in Word", d:"WORD", c:"Text typed correctly; NOTICE bold, centred, size 16; three lines as bullets; saved as notice_name.docx in the folder"},
+ {t:"Find and Replace in Word", d:"REPLACE", c:"Used Ctrl+H (not retyping by hand); all 3 \"courier\" changed to \"Courier Partner\"; saved again"},
+ {t:"Screenshot into Word", d:"SHOT", c:"Used Windows+Shift+S (or Cmd+Shift+4); picture pasted under the notice; document saved"},
+ {t:"Print the notice", d:"PRINT", c:"Opened Print with Ctrl+P; Landscape; printed to PDF as notice_name.pdf in the folder (or one real copy if you asked)"},
+ {t:"Excel sheet", d:"EXCEL", c:"Header bold; total uses =SUM and shows 1945; sorted 599 first; filter used and cleared; saved as orders_name.xlsx"},
+ {t:"Send an email", d:"EMAIL", c:"Email arrived with the right subject, a message, and both the Word and Excel files attached"},
+ {t:"Make a ZIP file", d:"ZIP", c:"ZIP of the whole folder made, sitting next to the folder, and it opens"},
+];
+const PASSAGE = "Dear customer, thank you for shopping with us. Your order for a tempered glass screen guard and a back cover has been packed and handed over to the courier today. You will receive a tracking number on WhatsApp within a few hours. Delivery usually takes three to five working days, but orders to small towns may take one or two days more. Please keep your phone switched on so the delivery partner can reach you. If you are not at home, you can ask a family member to collect the parcel. If the parcel looks damaged, take a photo before opening it and send it to us on WhatsApp. We will arrange a free replacement as soon as possible. For cash on delivery orders, please keep the exact amount ready. If you have any question about fitting the screen guard, watch the video link in the box or call our support team between 10 am and 7 pm. Have a great day.";
+const SECTION_NAMES = {Basic:"Basic computer", Medium:"Medium", Expert:"Expert and tricky", Reasoning:"Reasoning"};
+const REASONING_FROM = 25; /* questions 26 to 30 are reasoning */
+const PHISHING_Q = 19;     /* question 20: the fake Amazon email */
+const CUSTOMER_MSG = "Hello, I ordered a screen guard for Redmi Note 13 on Monday. Today is Friday and I still have not received it. The tracking shows \"out for delivery\" since yesterday. I need it urgently because my phone screen is cracked. Please help.";
+const READ_Q = ["What did the customer order?","Since when has the tracking shown \"out for delivery\"?","Why does the customer need it urgently?"];
+const RUBRIC = [
+ {k:"greet", l:"Polite greeting and sorry for the delay", max:2},
+ {k:"next", l:"Clear next step (check with courier, share update, give a time)", max:3},
+ {k:"english", l:"Correct English: grammar and spelling", max:2},
+ {k:"short", l:"Short and clear, 3 to 5 lines", max:2},
+];
+const POSTS = ["Listing","Shipping","Customer care","Other office post"];
+const DECISIONS = ["Go to department test","Hire","Keep for future","Not ready for office post","Reject"];
+/* Time limits in seconds: 9 + 10 + 2 + 4 = 25 minutes */
+const LIMITS = {"c-p1":540, "c-p2":600, "c-p3":120, "c-p4":240};
+const TEST_SECONDS = 1500;
+/* Marks: quiz 30, computer tasks 40, typing 15, English 15 = 100 */
+const MAX = {p1:30, p2:40, p3:15, p4:15};
 
-// Must match TYPING_TEXT in api.mjs.
-const TYPING_TEXT = "Please check the order list before you send it to the customer. Every item should have the right price, the right size and the right quantity. If something is missing, call the store and ask the manager to confirm the stock.";
-
-const $ = (id) => document.getElementById(id);
-const views = ["home", "quiz", "typing", "excel", "done", "hr-login", "hr"];
-function show(name) {
-  views.forEach((v) => $("view-" + v).classList.toggle("hidden", v !== name));
-  window.scrollTo(0, 0);
+/* ---------- Scoring shown to HR (the server re-checks when saving) ---------- */
+function emptyHr(){ return {p2:Array(TASKS.length).fill(null), read:[null,null,null], reply:{greet:null,next:null,english:null,short:null}, decision:"", notes:""}; }
+function totals(c, hr){
+  hr = hr || c.hr || emptyHr();
+  const p2arr = hr.p2||[], rd = hr.read||[], rp = hr.reply||{};
+  const p1 = c.part1 ? c.part1.score : 0;
+  const p2 = p2arr.reduce((s,v)=>s+(v||0),0);
+  const p3 = c.part3 ? c.part3.marks : 0;
+  const p4 = rd.reduce((s,v)=>s+(v||0),0) + RUBRIC.reduce((s,r)=>s+(rp[r.k]||0),0);
+  const p2done = p2arr.length===TASKS.length && p2arr.every(v=>v!==null);
+  const p4done = rd.length===3 && rd.every(v=>v!==null) && RUBRIC.every(r=>rp[r.k]!==null && rp[r.k]!==undefined);
+  const complete = !!(c.part1 && c.part3 && c.part4) && p2done && p4done;
+  const total = p1+p2+p3+p4;
+  const p2fail = p2done && p2<20;
+  let verdict, vclass;
+  if(!complete){ verdict="Scoring not finished"; vclass="pend"; }
+  else if(p2fail){ verdict="Reject for office posts: computer tasks below 20 out of 40"; vclass="bad"; }
+  else if(total>=75){ verdict="Strong: go to the department test"; vclass="good"; }
+  else if(total>=60){ verdict="Pass: go to the department test"; vclass="mid"; }
+  else { verdict="Not ready for an office post (can be considered for Packing)"; vclass="bad"; }
+  const rating = total>=85?5:total>=75?4:total>=60?3:total>=45?2:1;
+  return {p1,p2,p3,p4,total,complete,p2fail,verdict,vclass,rating};
 }
-const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
-async function api(path, opts = {}) {
-  const headers = { "content-type": "application/json", ...(opts.headers || {}) };
-  const res = await fetch("/api/" + path, { ...opts, headers });
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(data.error || "Something went wrong (" + res.status + ").");
-  return data;
+/* ---------- Helpers ---------- */
+const $ = (s,el=document)=>el.querySelector(s);
+const esc = s => String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const clone = o => JSON.parse(JSON.stringify(o));
+const fmtTime = s => { s=Math.max(0,Math.ceil(s)); return String(Math.floor(s/60)).padStart(2,"0")+":"+String(s%60).padStart(2,"0"); };
+const fmtDate = ms => ms ? new Date(ms).toLocaleString(undefined,{day:"numeric",month:"short",year:"numeric",hour:"numeric",minute:"2-digit"}) : "";
+function toast(msg){ const t=$("#toast"); t.textContent=msg; t.hidden=false; clearTimeout(toast._t); toast._t=setTimeout(()=>t.hidden=true,2800); }
+function lsGet(k){ try{ return JSON.parse(localStorage.getItem(k)); }catch(e){ return null; } }
+function lsSet(k,v){ try{ if(v==null) localStorage.removeItem(k); else localStorage.setItem(k,JSON.stringify(v)); }catch(e){} }
+function ssGet(k){ try{ return sessionStorage.getItem(k); }catch(e){ return null; } }
+function ssSet(k,v){ try{ if(v==null) sessionStorage.removeItem(k); else sessionStorage.setItem(k,v); }catch(e){} }
+
+async function api(method, path, body, headers){
+  let r;
+  try{
+    r = await fetch("/api/"+path, {method, headers:Object.assign({"content-type":"application/json"}, headers||{}), body: body?JSON.stringify(body):undefined});
+  }catch(e){ const err=new Error("No internet connection. Check it and try again."); err.status=0; throw err; }
+  let d={}; try{ d=await r.json(); }catch(e){}
+  if(!r.ok){ const err=new Error(d.error||("Something went wrong (error "+r.status+").")); err.status=r.status; throw err; }
+  return d;
 }
+const candApi = (method, body) => api(method, "candidates/"+S.active.id, body, {"x-token":S.active.token});
+const hrApi = (method, path, body) => api(method, "hr/"+path, body, {"x-pin":S.pin});
 
-// ---------------- Candidate side ----------------
-let settings = { excelEmail: "", testMinutes: 15 };
-api("settings").then((s) => {
-  settings = s;
-  if (s.excelEmail) $("excel-email").textContent = s.excelEmail;
-}).catch(() => {});
-
-const state = { candidate: null, startedAt: 0, answers: [], typingStart: 0, typingEnd: 0, timerId: null, submitted: false };
-
-$("quiz").innerHTML = QUIZ.map((item, i) => `
-  <div class="q">
-    <b>${i + 1}. ${esc(item.q)}</b>
-    ${item.o.map((opt, j) => `<label class="opt"><input type="radio" name="q${i}" value="${j}" /> ${esc(opt)}</label>`).join("")}
-  </div>`).join("");
-$("passage").textContent = TYPING_TEXT;
-
-$("start-btn").onclick = () => {
-  const name = $("c-name").value.trim();
-  const phone = $("c-phone").value.trim();
-  if (!name || !phone) { $("home-error").textContent = "Please enter your name and phone number."; return; }
-  $("home-error").textContent = "";
-  state.candidate = { name, phone, email: $("c-email").value.trim(), position: $("c-position").value.trim() };
-  state.startedAt = Date.now();
-  startTimer();
-  show("quiz");
+/* ---------- State ---------- */
+const S = {
+  view:"home", cfg:{taskEmail:""}, list:[], key:null, listLoaded:false,
+  pin:ssGet("hd-pin"), filter:{q:"", post:"", status:"all"},
+  active:lsGet("hd-active"), p1:[], p3:{typed:""}, p4:null,
+  confirmSubmit:false, timing:false, done:null,
+  detailId:null, draft:null, dirty:false, confirmDelete:false, pinErr:"", busy:false,
 };
 
-function startTimer() {
-  const end = state.startedAt + (settings.testMinutes || 15) * 60000;
-  const el = $("timer");
-  el.classList.remove("hidden");
-  const tick = () => {
-    const left = Math.max(0, end - Date.now());
-    const m = Math.floor(left / 60000), s = Math.floor((left % 60000) / 1000);
-    el.textContent = `${m}:${String(s).padStart(2, "0")}`;
-    el.classList.toggle("low", left < 120000);
-    if (left <= 0) { clearInterval(state.timerId); submit(true); }
-  };
+/* ---------- Boot ---------- */
+(async()=>{
+  try{ S.cfg = await api("GET","config"); }catch(e){}
+  if(S.active && S.active.id){
+    try{
+      const st = await candApi("GET");
+      if(st.status!=="in_progress"){ S.active=null; lsSet("hd-active",null); }
+    }catch(e){ if(e.status===404||e.status===403){ S.active=null; lsSet("hd-active",null); } }
+  }
+  if(S.pin){
+    try{ await hrApi("POST","check"); }catch(e){ S.pin=null; ssSet("hd-pin",null); }
+  }
+  render();
+})();
+setInterval(tick, 500);
+setInterval(()=>{ if(S.view==="hr-list" && S.pin && !document.hidden) loadList(); }, 20000);
+
+/* ---------- Render ---------- */
+function brand(right=""){ return `<div class="brand"><div class="logo"><span class="logo-mark">HD</span>Hiring Desk</div><div class="row">${right}</div></div>`; }
+function render(){
+  const v=S.view, views={home:viewHome,"c-details":viewDetails,"c-p1":viewP1,"c-p2":viewP2,"c-p3":viewP3,"c-p4":viewP4,"c-done":viewDone,pin:viewPin,"hr-list":viewHrList,"hr-detail":viewHrDetail,"hr-settings":viewHrSettings};
+  $("#app").innerHTML = (views[v]||viewHome)();
+  if(v==="hr-list") renderRows();
+  if(v==="c-p3"){ const ta=$("#typebox"); if(ta) ta.focus(); }
   tick();
-  state.timerId = setInterval(tick, 500);
+}
+function go(v){ S.view=v; S.confirmSubmit=false; render(); window.scrollTo(0,0); }
+function keepScroll(){ const y=scrollY; render(); scrollTo(0,y); }
+
+/* ----- Home ----- */
+function viewHome(){
+  const resume = S.active ? `<div class="note info row between"><span>A test is in progress for <b>${esc(S.active.name||"a candidate")}</b>.</span><button class="btn primary" data-act="resume">Continue the test</button></div>` : "";
+  return brand() + `<div class="stack">
+    <div class="stack-s"><span class="eyebrow">Basic computer skills test</span>
+      <h1>Who is using this page?</h1>
+      <p class="muted">Candidates take the test here. The interviewer scores the practical parts and sees the result.</p></div>
+    ${resume}
+    <div class="split">
+      <div class="panel door cand"><div class="stack-s"><h2>I am a candidate</h2>
+        <p class="muted">Fill your details and take the test. Each part has its own timer and moves on by itself when time is up.</p>
+        <div class="meta"><span>4 parts</span><span>25 minutes</span><span>Use a computer, not a phone</span></div></div>
+        <button class="btn primary block" data-act="start">Start the test</button></div>
+      <div class="panel door hr"><div class="stack-s"><h2>Interviewer (HR)</h2>
+        <p class="muted">See all candidates, score the computer tasks and English reply, and get the final result. Works on your phone too.</p>
+        <div class="meta"><span>PIN required</span></div></div>
+        <button class="btn block" data-act="to-hr">Open HR area</button></div>
+    </div></div>`;
 }
 
-function readAnswers() {
-  return QUIZ.map((_, i) => {
-    const c = document.querySelector(`input[name="q${i}"]:checked`);
-    return c ? Number(c.value) : null;
+/* ----- Candidate ----- */
+function viewDetails(){
+  return brand(`<button class="btn ghost" data-act="home">Cancel</button>`) + `<div class="stack" style="max-width:560px">
+    <div class="stack-s"><span class="eyebrow">Before you start</span><h1>Your details</h1></div>
+    <form id="f-details" class="panel stack" novalidate>
+      <label class="f">Full name *<input type="text" id="d-name" autocomplete="name" maxlength="80"></label>
+      <label class="f">Phone number *<input type="tel" id="d-phone" inputmode="tel" autocomplete="tel" maxlength="20"></label>
+      <label class="f">Email<input type="email" id="d-email" autocomplete="email" maxlength="120"></label>
+      <label class="f">Post you are applying for *<select id="d-post"><option value="">Choose a post</option>${POSTS.map(p=>`<option>${p}</option>`).join("")}</select></label>
+      <p class="err" id="d-err" hidden></p>
+      <div class="sunk small"><b>25 minutes in total.</b> Part 1 quiz, 30 questions (9 min) · Part 2 computer tasks in Word, Excel, email and printing (10 min, the interviewer watches) · Part 3 typing (2 min) · Part 4 English (4 min). The timer starts as soon as you press the button.</div>
+      <button class="btn primary" type="submit" id="d-submit">Start the test</button>
+    </form></div>`;
+}
+function testBar(step){
+  const names=["Quiz","Computer tasks","Typing","English"];
+  return `<div class="testbar row between"><div class="steps">${names.map((n,i)=>`<span class="step ${i+1===step?"on":i+1<step?"done":""}">${i+1} · ${n}</span>`).join("")}</div>
+    <div class="timers"><span class="timer" id="t-part"><small>This part</small><span>--:--</span></span><span class="timer" id="t-total"><small>Total left</small><span>--:--</span></span></div></div>`;
+}
+function viewP1(){
+  let last="";
+  const qs = QUIZ.map((q,i)=>{
+    const head = q.s!==last ? `<h3 style="margin-top:12px">${SECTION_NAMES[q.s]||q.s}</h3>` : ""; last=q.s;
+    return head + `<fieldset class="q"><legend class="q-head"><span class="q-n">${i+1}.</span><span>${esc(q.q)}</span></legend>
+      <div class="opts">${q.o.map((o,k)=>`<label class="opt ${S.p1[i]===k?"sel":""}"><input type="radio" name="q${i}" id="q${i}-${k}" value="${k}" ${S.p1[i]===k?"checked":""}><span><span class="k">${LETTERS[k]})</span> ${esc(o)}</span></label>`).join("")}</div></fieldset>`;
+  }).join("");
+  const un = S.p1.filter(v=>v==null).length;
+  return brand() + testBar(1) + `<div class="stack">
+    <div class="stack-s"><h1>Part 1: Quiz</h1><p class="muted">30 questions, 9 minutes. They go from easy to hard, and the last 5 are reasoning. Choose one answer for each. Shortcuts are for Windows (on a Mac, use Cmd instead of Ctrl).</p></div>
+    <div class="panel">${qs}</div>
+    ${S.confirmSubmit && un>0 ? `<div class="note">You have ${un} unanswered ${un===1?"question":"questions"}. Press the button again to submit anyway.</div>`:""}
+    <button class="btn primary" data-act="submit-p1" ${S.busy?"disabled":""}>Submit Part 1</button></div>`;
+}
+function taskBody(t){
+  if(t.d==="FOLDER") return `On the Desktop, create a folder named Test and your name, for example <b>Test_Rahul</b>. Open Google Chrome, search <b>iPhone 15 tempered glass</b>, download one product image, rename it <b>iphone15_glass.jpg</b> and put it in your folder.`;
+  if(t.d==="WORD") return `Open Microsoft Word and type this notice exactly:
+    <div class="sunk" style="margin:10px 0">NOTICE<br>All courier pickups will be at 5 pm from Monday.<br>Pack every courier order before 4:30 pm.<br>A courier order packed after 4:30 pm will go the next day.</div>
+    Make <b>NOTICE</b> bold, centred and font size 16. Make the three lines a <b>bullet list</b>. Save it in your folder as <b>notice_yourname.docx</b>.`;
+  if(t.d==="REPLACE") return `In the same document, use <b>Find and Replace</b> to change every <b>courier</b> to <b>Courier Partner</b> in one go. Save the document again.`;
+  if(t.d==="SHOT") return `Take a screenshot of the Google search page from Task 1 (Windows+Shift+S, on a Mac Cmd+Shift+4). Paste it under the notice in your Word document and save.`;
+  if(t.d==="PRINT") return `Print the Word document: open the Print window, set the page to <b>Landscape</b>, choose <b>Microsoft Print to PDF</b> (on a Mac: PDF, then Save as PDF) and save it in your folder as <b>notice_yourname.pdf</b>. If the interviewer asks, print one real copy on the office printer instead.`;
+  if(t.d==="EXCEL") return `Open Excel and type this table:
+    <div class="tbl-wrap" style="margin:10px 0"><table><thead><tr><th>Order</th><th>City</th><th>Payment</th><th class="r">Amount</th></tr></thead><tbody>
+    ${[["1001","Ahmedabad","Prepaid","299"],["1002","Mumbai","COD","499"],["1003","Delhi","Prepaid","349"],["1004","Surat","COD","599"],["1005","Jaipur","COD","199"]].map(r=>`<tr><td class="mono">${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td><td class="r mono">${r[3]}</td></tr>`).join("")}
+    </tbody></table></div>Make the header row <b>bold</b>. In the row below, use a <b>formula</b> to total the Amount column. <b>Sort</b> by Amount, highest first. Use <b>Filter</b> to show only COD orders, then show all orders again. Save it in your folder as <b>orders_yourname.xlsx</b>.`;
+  if(t.d==="EMAIL"){
+    const email = S.cfg.taskEmail ? `<b class="mono">${esc(S.cfg.taskEmail)}</b>` : `the address the interviewer gives you`;
+    return `Log in to your email. Send an email to ${email} with subject <b>Computer test - your name</b>, a 2-line message, and attach <b>both</b> the Word file and the Excel file.`;
+  }
+  if(t.d==="ZIP") return `Make a ZIP file of your whole folder (Windows: right-click the folder, Send to, Compressed (zipped) folder. Mac: right-click, Compress).`;
+  return t.d;
+}
+function viewP2(){
+  return brand() + testBar(2) + `<div class="stack">
+    <div class="stack-s"><h1>Part 2: Computer tasks</h1><p class="muted">Do these 8 tasks on this computer, in order. The interviewer will watch. 10 minutes. If you are stuck on one task, move to the next.</p></div>
+    <div class="panel"><ol class="tasks">${TASKS.map(t=>`<li><div class="stack-s"><h3>${t.t}</h3><div>${taskBody(t)}</div></div></li>`).join("")}</ol></div>
+    <div class="note info">Keep this page open and do the tasks in other windows. Use Alt+Tab (Cmd+Tab on a Mac) to come back.</div>
+    ${S.confirmSubmit ? `<div class="note">Have you finished all 8 tasks? Press the button again to go to Part 3.</div>`:""}
+    <button class="btn primary" data-act="submit-p2" ${S.busy?"disabled":""}>I have finished all tasks</button></div>`;
+}
+function viewP3(){
+  return brand() + testBar(3) + `<div class="stack">
+    <div class="stack-s"><h1>Part 3: Typing test</h1><p class="muted">2 minutes. Type the passage below exactly, with capital letters and full stops. The timer is already running. The test moves to Part 4 by itself.</p></div>
+    <div class="panel passage">${esc(PASSAGE)}</div>
+    <label class="f">Type here<textarea id="typebox" class="typebox" spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off" ${S.timing?"disabled":""}>${esc(S.p3.typed||"")}</textarea></label>
+    <p class="muted small">Copy and paste does not work in this box.</p></div>`;
+}
+function viewP4(){
+  const a = S.p4 || {read:["","",""], reply:""};
+  return brand() + testBar(4) + `<div class="stack">
+    <div class="stack-s"><h1>Part 4: English</h1><p class="muted">4 minutes. Read the customer message, answer the 3 questions, then write a reply. The test submits itself when time is up.</p></div>
+    <div class="panel stack-s"><span class="eyebrow">Customer message on WhatsApp</span><p style="font-size:17px">${esc(CUSTOMER_MSG)}</p></div>
+    <div class="panel stack"><h3>A. Answer in one line each</h3>
+      ${READ_Q.map((q,i)=>`<label class="f">${i+1}. ${esc(q)}<input type="text" id="r${i}" value="${esc(a.read[i])}" spellcheck="false" maxlength="300"></label>`).join("")}</div>
+    <div class="panel stack"><h3>B. Write a polite reply to this customer (3 to 5 lines)</h3>
+      <textarea id="reply" spellcheck="false" maxlength="2000" placeholder="Write your reply here">${esc(a.reply)}</textarea></div>
+    ${S.confirmSubmit ? `<div class="note">After you submit, you cannot change your answers. Press the button again to submit the test.</div>`:""}
+    <button class="btn primary" data-act="submit-p4" ${S.busy?"disabled":""}>Submit the test</button></div>`;
+}
+function viewDone(){
+  const d=S.done||{};
+  return brand() + `<div class="center panel stack" style="text-align:center">
+    <span class="eyebrow">Test submitted</span><h1>Thank you, ${esc((d.name||"").split(" ")[0])}</h1>
+    <p>Please tell the interviewer you have finished.</p>
+    <div class="sunk"><span class="small muted">Your candidate code</span><div class="mono" style="font-size:26px;font-weight:600">${esc(d.code||"")}</div></div>
+    <button class="btn" data-act="home">Back to start screen</button></div>`;
+}
+
+/* ----- HR ----- */
+function viewPin(){
+  return brand(`<button class="btn ghost" data-act="home">Back</button>`) + `<form id="f-pin" class="center panel stack" novalidate>
+    <div class="stack-s"><span class="eyebrow">Interviewer only</span><h2>Enter HR PIN</h2>
+    <p class="muted small">The PIN is set in Netlify (environment variable HR_PIN). Candidates cannot see any results without it.</p></div>
+    <input type="password" id="pin1" class="pin" inputmode="numeric" maxlength="12" autocomplete="off" aria-label="PIN">
+    ${S.pinErr?`<p class="err">${esc(S.pinErr)}</p>`:""}
+    <button class="btn primary" type="submit" ${S.busy?"disabled":""}>Open HR area</button></form>`;
+}
+function statusPill(c){
+  if(c.status==="in_progress") return `<span class="pill prog">Test in progress</span>`;
+  if(c.status==="submitted") return `<span class="pill wait">Waiting for scoring</span>`;
+  const t=totals(c); return `<span class="pill ${t.vclass==="bad"?"bad":"done"}">Scored</span>`;
+}
+function hrBar(){ return brand(`<button class="btn ghost" data-act="refresh">Refresh</button><button class="btn ghost" data-act="hr-settings">Settings</button><button class="btn ghost" data-act="csv">Download CSV</button><button class="btn" data-act="lock">Lock</button>`); }
+function viewHrList(){
+  return hrBar() + `<div class="stack">
+    <div class="stack-s"><span class="eyebrow">HR area</span><h1>Candidates</h1></div>
+    <div class="counts" id="counts"></div>
+    <div class="toolbar"><input type="search" id="f-q" placeholder="Search name, phone or code" value="${esc(S.filter.q)}">
+      <select id="f-post"><option value="">All posts</option>${POSTS.map(p=>`<option ${S.filter.post===p?"selected":""}>${p}</option>`).join("")}</select></div>
+    <div class="chips">${[["all","All"],["submitted","Waiting for scoring"],["scored","Scored"],["in_progress","In progress"]].map(([k,l])=>`<button class="chip ${S.filter.status===k?"on":""}" data-act="fstatus" data-v="${k}">${l}</button>`).join("")}</div>
+    <div id="rows"></div></div>`;
+}
+function filtered(){
+  const q=S.filter.q.trim().toLowerCase();
+  return S.list.filter(c=>{
+    if(S.filter.post && c.post!==S.filter.post) return false;
+    if(S.filter.status!=="all" && c.status!==S.filter.status) return false;
+    if(q && !((c.name||"").toLowerCase().includes(q)||(c.phone||"").includes(q)||(c.code||"").toLowerCase().includes(q))) return false;
+    return true;
   });
 }
+function renderRows(){
+  const el=$("#rows"); if(!el) return;
+  const cnt=$("#counts");
+  if(cnt){ const n=k=>S.list.filter(c=>c.status===k).length;
+    cnt.innerHTML=`<div><b>${S.list.length}</b><span class="small muted">Total</span></div><div><b>${n("submitted")}</b><span class="small muted">Waiting for scoring</span></div><div><b>${n("scored")}</b><span class="small muted">Scored</span></div><div><b>${n("in_progress")}</b><span class="small muted">In progress</span></div>`; }
+  if(!S.listLoaded){ el.innerHTML=`<p class="muted">Loading candidates…</p>`; return; }
+  if(!S.list.length){ el.innerHTML=`<div class="panel stack-s"><h3>No candidates yet</h3><p class="muted">When a candidate starts the test, they appear here. This list refreshes every 20 seconds.</p></div>`; return; }
+  const rows=filtered();
+  if(!rows.length){ el.innerHTML=`<p class="muted">No candidates match this filter.</p>`; return; }
+  el.innerHTML=`<div class="cand-list">${rows.map(c=>{
+    const t=totals(c);
+    const score = c.status==="scored" ? `${t.total}<span class="small muted">/100</span>` : c.status==="submitted" ? `<span class="small muted">auto ${t.p1+t.p3}/40</span>` : `<span class="small muted">—</span>`;
+    return `<button class="cand-row" data-act="open" data-id="${esc(c.id)}">
+      <div class="stack-s" style="gap:2px;min-width:0"><span class="name">${esc(c.name)}</span><span class="sub">${esc(c.post)} · ${esc(c.code)} · ${fmtDate(c.createdAt)}</span><span>${statusPill(c)} ${c.hr&&c.hr.decision?`<span class="small muted">· ${esc(c.hr.decision)}</span>`:""}</span></div>
+      <div class="score">${score}</div></button>`;}).join("")}</div>`;
+}
+function seg(path, values, current){
+  return `<div class="seg" role="group">${values.map(v=>`<button type="button" data-act="setv" data-path="${path}" data-v="${v}" aria-pressed="${current===v}">${v}</button>`).join("")}</div>`;
+}
+function viewHrDetail(){
+  const c=S.list.find(x=>x.id===S.detailId);
+  if(!c) return hrBar()+`<p class="muted">This candidate was not found.</p><button class="btn" data-act="hr-list">Back to list</button>`;
+  const d=S.draft, t=totals(c,d), key=S.key||{quiz:[],read:[]};
+  const wrong = c.part1 ? QUIZ.map((q,i)=>({q,i,a:c.part1.answers[i],k:key.quiz[i]})).filter(x=>x.a!==x.k) : [];
+  const bar=(label,v,max)=>`<div class="bar"><span>${label}</span><span class="track"><span class="fill" style="width:${Math.round(v/max*100)}%"></span></span><span class="v">${v}/${max}</span></div>`;
+  const mins = (a,b)=> (a&&b) ? (Math.round((b-a)/6000)/10)+" min" : "";
+  return hrBar() + `<div class="stack">
+    <div class="row between"><button class="btn ghost" data-act="hr-list">← All candidates</button>${statusPill(c)}</div>
+    <div class="stack-s"><span class="eyebrow">${esc(c.post)} · ${esc(c.code)}</span><h1>${esc(c.name)}</h1></div>
+    <div class="panel kv"><div><span class="small muted">Phone</span><b class="mono">${esc(c.phone)}</b></div><div><span class="small muted">Email</span><b>${esc(c.email||"—")}</b></div><div><span class="small muted">Started</span><b>${fmtDate(c.createdAt)}</b></div><div><span class="small muted">Time taken</span><b>${c.submittedAt?mins(c.createdAt,c.submittedAt):"Not submitted yet"}</b></div></div>
+    ${c.status==="in_progress"?`<div class="note">This candidate has not submitted the test yet. You can score the computer tasks while you watch, then press Refresh.</div>`:""}
+    <div class="panel stack"><div class="score-card"><div class="big">${t.total}<small>/100</small></div>
+      <div class="bars">${bar("Quiz",t.p1,MAX.p1)}${bar("Computer tasks",t.p2,MAX.p2)}${bar("Typing",t.p3,MAX.p3)}${bar("English",t.p4,MAX.p4)}</div></div>
+      <div class="verdict ${t.vclass}">${esc(t.verdict)}</div>
+      ${t.complete?`<p class="small muted">Rating for the common skill <b>Computer and typing</b>: <b class="mono">${t.rating} / 5</b></p>`:`<p class="small muted">Score every row in Part 2 and Part 4 to get the final result.</p>`}</div>
 
-$("quiz-next").onclick = () => {
-  state.answers = readAnswers();
-  const missing = state.answers.filter((a) => a === null).length;
-  if (missing && !confirm(`You have not answered ${missing} question(s). Continue anyway?`)) return;
-  show("typing");
-  $("typed").focus();
-};
+    <div class="panel stack"><div class="part-head"><h2>Part 1 · Quiz</h2><span class="pts">${t.p1}/${MAX.p1}</span></div>
+      ${c.part1?`<div class="kv">${Object.keys(SECTION_NAMES).map(sec=>{const idx=QUIZ.map((q,i)=>q.s===sec?i:-1).filter(i=>i>=0);const ok=idx.filter(i=>c.part1.answers[i]===key.quiz[i]).length;return `<div><span class="small muted">${SECTION_NAMES[sec]}</span><b class="mono">${ok}/${idx.length}</b></div>`;}).join("")}</div>`:""}
+      ${c.part1 ? (wrong.length ? `<p class="muted small">1 mark per question, marked automatically. ${wrong.length} wrong or unanswered:</p><div class="tbl-wrap"><table><thead><tr><th>Q</th><th>Question</th><th>Their answer</th><th>Correct</th></tr></thead><tbody>${wrong.map(x=>`<tr><td class="mono">${x.i+1}</td><td>${esc(x.q.q)}</td><td>${x.a==null?`<span class="muted">No answer</span>`:esc(LETTERS[x.a]+") "+x.q.o[x.a])}</td><td>${x.k==null?"":esc(LETTERS[x.k]+") "+x.q.o[x.k])}</td></tr>`).join("")}</tbody></table></div>` : `<p class="muted small">All 30 correct.</p>`)+(c.part1.timedOut?`<p class="small muted">Time ran out before they pressed submit.</p>`:"") : `<p class="muted">Not done yet.</p>`}
+      ${c.part1&&c.part1.answers[PHISHING_Q]!==key.quiz[PHISHING_Q]?`<div class="note">Question ${PHISHING_Q+1} (fake Amazon email) was wrong: this candidate might click a fake login link. Ask about it in the interview.</div>`:""}</div>
 
-const typed = $("typed");
-["paste", "drop", "contextmenu"].forEach((ev) => typed.addEventListener(ev, (e) => e.preventDefault()));
-typed.addEventListener("input", () => {
-  if (!state.typingStart && typed.value) state.typingStart = Date.now();
-  const words = typed.value.trim() ? typed.value.trim().split(/\s+/).length : 0;
-  $("typing-live").textContent = `${words} of ${TYPING_TEXT.split(/\s+/).length} words`;
+    <div class="panel stack"><div class="part-head"><h2>Part 2 · Computer tasks</h2><span class="pts">${t.p2}/${MAX.p2}</span></div>
+      <p class="small muted">Give <b>5</b> if done alone and correctly, <b>3</b> with one hint or very slowly, <b>0</b> if they could not do it.${c.part2?` They took <b class="mono">${c.part2.minutes} min</b>${c.part2.timedOut?" (time ran out)":""}.`:""}</p>
+      <div>${TASKS.map((tk,i)=>`<div class="score-line"><div><b>${i+1}. ${tk.t}</b><div class="small muted">${esc(tk.c)}</div></div>${seg("p2."+i,[5,3,0],d.p2[i])}</div>`).join("")}</div>
+      ${t.p2fail?`<div class="note bad">Below 20 out of 40: reject for office posts, whatever the total.</div>`:""}</div>
+
+    <div class="panel stack"><div class="part-head"><h2>Part 3 · Typing</h2><span class="pts">${t.p3}/${MAX.p3}</span></div>
+      ${c.part3?`<div class="kv"><div><span class="small muted">Speed</span><b class="mono" style="font-size:20px">${c.part3.wpm} WPM</b></div><div><span class="small muted">Mistakes</span><b class="mono">${c.part3.mistakes}</b></div><div><span class="small muted">Target</span><b>25 WPM or more</b></div></div>
+      ${c.part3.mistakes>5?`<p class="small muted">More than 5 mistakes, so 3 marks were taken off.</p>`:""}
+      <details><summary>Show what they typed</summary><div class="answer mono" style="margin-top:8px">${esc(c.part3.typed)||"(nothing typed)"}</div></details>`:`<p class="muted">Not done yet.</p>`}</div>
+
+    <div class="panel stack"><div class="part-head"><h2>Part 4 · English</h2><span class="pts">${t.p4}/${MAX.p4}</span></div>
+      ${c.part4?`<h3>A. Reading (2 marks each)</h3>
+      <div>${READ_Q.map((q,i)=>`<div class="score-line"><div class="stack-s" style="gap:4px"><b>${i+1}. ${esc(q)}</b><div class="answer ${c.part4.read[i]?"":"empty"}">${esc(c.part4.read[i])||"No answer"}</div><span class="expect">Expected: ${esc(key.read[i]||"")}</span></div>${seg("read."+i,[2,1,0],d.read[i])}</div>`).join("")}</div>
+      <h3>B. Written reply</h3><div class="answer ${c.part4.reply?"":"empty"}">${esc(c.part4.reply)||"No reply written"}</div>
+      <div>${RUBRIC.map(r=>`<div class="score-line"><div><b>${esc(r.l)}</b><div class="small muted">Up to ${r.max} marks</div></div>${seg("reply."+r.k,Array.from({length:r.max+1},(_,i)=>r.max-i),d.reply[r.k])}</div>`).join("")}</div>`:`<p class="muted">Not done yet.</p>`}</div>
+
+    <div class="panel stack"><h2>Your decision</h2>
+      <label class="f">Decision<select id="h-dec"><option value="">Not decided</option>${DECISIONS.map(x=>`<option ${d.decision===x?"selected":""}>${x}</option>`).join("")}</select></label>
+      <label class="f">Notes from the interview<textarea id="h-notes" maxlength="3000" placeholder="Attitude, good habits you noticed, salary expected, joining date…">${esc(d.notes)}</textarea></label>
+      ${S.confirmDelete?`<div class="note bad row between"><span>Delete ${esc(c.name)} and all their answers for good?</span><span class="row"><button class="btn" data-act="del-cancel">Keep</button><button class="btn danger" data-act="del-yes">Delete</button></span></div>`:`<div><button class="btn ghost" data-act="del">Delete this candidate</button></div>`}</div>
+    <div class="savebar"><span class="small ${S.dirty?"":"muted"}">${S.dirty?"<b>Unsaved changes</b>":(c.scoredAt?"Saved "+fmtDate(c.scoredAt):"Nothing saved yet")}</span><button class="btn primary" data-act="save-hr" ${S.dirty&&!S.busy?"":"disabled"}>Save scores</button></div>
+  </div>`;
+}
+function viewHrSettings(){
+  return hrBar() + `<div class="stack" style="max-width:560px">
+    <button class="btn ghost" data-act="hr-list" style="align-self:flex-start">← All candidates</button>
+    <h1>Settings</h1>
+    <form id="f-tasks" class="panel stack" novalidate><h3>Shown to candidates in Part 2</h3>
+      <label class="f">Your email for Task 7 (candidate sends the Word and Excel files here)<input type="email" id="s-email" value="${esc(S.cfg.taskEmail||"")}" maxlength="120"></label>
+      <button class="btn primary" type="submit">Save</button></form>
+    <div class="panel stack-s"><h3>Change the HR PIN</h3><p class="muted small">In Netlify, open your site, go to Site configuration, then Environment variables. Edit <b class="mono">HR_PIN</b>, then go to Deploys and press Trigger deploy.</p></div></div>`;
+}
+
+/* ---------- Timers ---------- */
+function partEnd(){ const a=S.active; if(!a) return Date.now(); return Math.min(a.partStart + LIMITS[S.view]*1000, a.testStart + TEST_SECONDS*1000); }
+function setTimer(id, left, lowAt){
+  const el=$("#"+id); if(!el) return;
+  el.querySelector("span").textContent=fmtTime(left); el.classList.toggle("low", left<=lowAt);
+}
+function tick(){
+  if(!LIMITS[S.view] || !S.active) return;
+  const now=Date.now();
+  const left=(partEnd()-now)/1000, total=(S.active.testStart+TEST_SECONDS*1000-now)/1000;
+  setTimer("t-part", left, S.view==="c-p3"?10:30); setTimer("t-total", total, 60);
+  if(left<=0 && !S.timing){
+    S.timing=true;
+    if(S.view==="c-p1") submitP1(true);
+    else if(S.view==="c-p2") submitP2(true);
+    else if(S.view==="c-p3") finishP3();
+    else if(S.view==="c-p4") submitP4(true);
+  }
+}
+
+/* ---------- Candidate actions ---------- */
+function saveActive(){ lsSet("hd-active", S.active); }
+function startPart(step){ S.active.step=step; S.active.partStart=Date.now(); S.timing=false; S.busy=false; saveActive(); go(step); }
+async function retrying(fn){
+  for(let i=0;i<3;i++){ try{ return await fn(); }catch(e){ if(e.status && e.status<500) throw e; if(i===2) throw e; await new Promise(r=>setTimeout(r,1500)); } }
+}
+async function startCandidate(){
+  const name=$("#d-name").value.trim(), phone=$("#d-phone").value.trim(), email=$("#d-email").value.trim(), post=$("#d-post").value;
+  const err=$("#d-err");
+  if(!name||!phone||!post){ err.textContent="Please fill your name, phone number and the post."; err.hidden=false; return; }
+  if(phone.replace(/\D/g,"").length<10){ err.textContent="Please enter a 10-digit phone number."; err.hidden=false; return; }
+  $("#d-submit").disabled=true;
+  try{
+    const r=await api("POST","candidates",{name,phone,email,post});
+    S.active={id:r.id,token:r.token,code:r.code,name,testStart:Date.now(),p1:Array(QUIZ.length).fill(null)};
+    S.p1=S.active.p1;
+    startPart("c-p1");
+  }catch(e){ $("#d-submit").disabled=false; err.textContent=e.message; err.hidden=false; }
+}
+async function sendPart(body){
+  try{ await retrying(()=>candApi("PATCH", body)); return true; }
+  catch(e){ if(e.status===409){ finishLocal(); return false; } S.busy=false; S.timing=false; toast(e.message); keepScroll(); return false; }
+}
+async function submitP1(timedOut){
+  S.busy=true; keepScroll();
+  if(await sendPart({part:"p1",answers:S.p1,timedOut:!!timedOut})){ delete S.active.p1; startPart("c-p2"); }
+}
+async function submitP2(timedOut){
+  S.busy=true; keepScroll();
+  if(await sendPart({part:"p2",timedOut:!!timedOut})){ S.p3={typed:""}; startPart("c-p3"); }
+}
+async function finishP3(){
+  const ta=$("#typebox"); if(ta){ S.p3.typed=ta.value; ta.disabled=true; }
+  if(await sendPart({part:"p3",typed:S.p3.typed||""})){ S.p4={read:["","",""],reply:""}; startPart("c-p4"); }
+  else { S.timing=false; S.active.partStart = Date.now() - LIMITS["c-p3"]*1000 + 3000; }
+}
+function readP4(){ if($("#reply")) S.p4={read:[0,1,2].map(i=>$("#r"+i).value.trim()),reply:$("#reply").value.trim()}; }
+async function submitP4(timedOut){
+  readP4(); S.busy=true;
+  if(!timedOut) keepScroll();
+  if(await sendPart({part:"p4",read:S.p4.read,reply:S.p4.reply,timedOut:!!timedOut})) finishLocal();
+}
+function finishLocal(){ S.done={name:S.active.name,code:S.active.code}; S.active=null; saveActive(); S.busy=false; S.timing=false; go("c-done"); }
+function resume(){
+  const a=S.active; if(!a) return;
+  if(a.step==="c-p1"){ S.p1=a.p1||Array(QUIZ.length).fill(null); }
+  if(a.step==="c-p3"){ S.p3={typed:""}; }
+  if(a.step==="c-p4"){ S.p4={read:["","",""],reply:""}; }
+  S.timing=false; S.busy=false; go(a.step||"c-p1");
+}
+
+/* ---------- HR actions ---------- */
+async function loadList(){
+  try{
+    const r=await hrApi("GET","candidates");
+    S.list=r.candidates; S.key=r.key; S.listLoaded=true;
+    if(S.view==="hr-list") renderRows();
+    else if(S.view==="hr-detail" && !S.dirty) keepScroll();
+  }catch(e){ if(e.status===401){ lockHr(); toast("Please enter the PIN again."); } else toast(e.message); }
+}
+async function pinSubmit(){
+  const p=$("#pin1").value.trim();
+  if(!p){ S.pinErr="Enter the PIN."; render(); return; }
+  S.busy=true; S.pin=p; render();
+  try{ await hrApi("POST","check"); ssSet("hd-pin",p); S.pinErr=""; S.busy=false; S.listLoaded=false; go("hr-list"); loadList(); }
+  catch(e){ S.pin=null; S.busy=false; S.pinErr=e.message; render(); }
+}
+function lockHr(){ S.pin=null; ssSet("hd-pin",null); S.list=[]; S.key=null; S.listLoaded=false; S.dirty=false; go("home"); }
+function openDetail(id){
+  const c=S.list.find(x=>x.id===id); if(!c) return;
+  S.detailId=id; S.draft=Object.assign(emptyHr(), clone(c.hr||{}));
+  S.dirty=false; S.confirmDelete=false; go("hr-detail");
+}
+function setDraft(path,val){
+  const [k,sub]=path.split(".");
+  if(k==="reply") S.draft.reply[sub]=val; else S.draft[k][+sub]=val;
+  S.dirty=true; keepScroll();
+}
+async function saveHr(){
+  S.busy=true; keepScroll();
+  try{
+    const r=await hrApi("PUT","candidates/"+S.detailId,{hr:S.draft});
+    const i=S.list.findIndex(x=>x.id===S.detailId); if(i>=0) S.list[i]=r.candidate;
+    S.dirty=false; toast("Scores saved");
+  }catch(e){ toast(e.message); }
+  S.busy=false; keepScroll();
+}
+async function delCand(){
+  try{ await hrApi("DELETE","candidates/"+S.detailId); S.list=S.list.filter(x=>x.id!==S.detailId); S.dirty=false; toast("Candidate deleted"); go("hr-list"); }
+  catch(e){ toast(e.message); }
+}
+function exportCsv(){
+  const head=["Code","Name","Phone","Email","Post","Started","Status","Quiz /30","Computer tasks /40","Typing /15","English /15","Total /100","Typing WPM","Result","Decision","Notes"];
+  const rows=S.list.map(c=>{const t=totals(c);const h=c.hr||{};
+    return [c.code,c.name,c.phone,c.email,c.post,fmtDate(c.createdAt),c.status,t.p1,t.p2,t.p3,t.p4,t.total,c.part3?c.part3.wpm:"",t.verdict,h.decision||"",h.notes||""];});
+  const csv=[head,...rows].map(r=>r.map(v=>{v=String(v==null?"":v);return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v;}).join(",")).join("\n");
+  const url=URL.createObjectURL(new Blob(["﻿"+csv],{type:"text/csv"}));
+  const a=document.createElement("a"); a.href=url; a.download="candidates-"+new Date().toISOString().slice(0,10)+".csv";
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(url),2000);
+}
+function leaveDetail(b, then){
+  if(S.dirty && !b.dataset.sure){ toast("You have unsaved scores. Press again to leave without saving."); b.dataset.sure="1"; return; }
+  S.dirty=false; then();
+}
+
+/* ---------- Events ---------- */
+document.addEventListener("click", e=>{
+  const b=e.target.closest("[data-act]"); if(!b) return;
+  const a=b.dataset.act;
+  if(a==="home") go("home");
+  else if(a==="start") go("c-details");
+  else if(a==="resume") resume();
+  else if(a==="to-hr"){ if(S.pin){ S.listLoaded=false; go("hr-list"); loadList(); } else { S.pinErr=""; go("pin"); } }
+  else if(a==="submit-p1"){ const un=S.p1.filter(v=>v==null).length; if(un>0&&!S.confirmSubmit){ S.confirmSubmit=true; keepScroll(); return; } S.timing=true; submitP1(false); }
+  else if(a==="submit-p2"){ if(!S.confirmSubmit){ S.confirmSubmit=true; keepScroll(); return; } S.timing=true; submitP2(false); }
+  else if(a==="submit-p4"){ if(!S.confirmSubmit){ readP4(); S.confirmSubmit=true; keepScroll(); return; } S.timing=true; submitP4(false); }
+  else if(a==="lock") leaveDetail(b, lockHr);
+  else if(a==="refresh") loadList();
+  else if(a==="hr-list") leaveDetail(b, ()=>{ go("hr-list"); });
+  else if(a==="hr-settings") leaveDetail(b, ()=>go("hr-settings"));
+  else if(a==="fstatus"){ S.filter.status=b.dataset.v; document.querySelectorAll(".chip").forEach(c=>c.classList.toggle("on",c.dataset.v===S.filter.status)); renderRows(); }
+  else if(a==="open") openDetail(b.dataset.id);
+  else if(a==="setv"){ const v=+b.dataset.v; const [k,sub]=b.dataset.path.split("."); const cur=k==="reply"?S.draft.reply[sub]:S.draft[k][+sub]; setDraft(b.dataset.path, cur===v?null:v); }
+  else if(a==="save-hr") saveHr();
+  else if(a==="del"){ S.confirmDelete=true; keepScroll(); }
+  else if(a==="del-cancel"){ S.confirmDelete=false; keepScroll(); }
+  else if(a==="del-yes") delCand();
+  else if(a==="csv") exportCsv();
 });
-
-$("typing-next").onclick = () => {
-  state.typingEnd = Date.now();
-  show("excel");
-};
-
-$("submit-btn").onclick = () => {
-  if (!$("excel-sent").checked && !confirm("You have not ticked that you emailed the Excel file. Submit anyway?")) return;
-  submit(false);
-};
-
-async function submit(timedOut) {
-  if (state.submitted) return;
-  state.submitted = true;
-  clearInterval(state.timerId);
-  $("submit-btn").disabled = true;
-  if (!state.answers.length) state.answers = readAnswers();
-  const end = state.typingEnd || Date.now();
-  const typingSeconds = state.typingStart ? (end - state.typingStart) / 1000 : 0;
-  const payload = {
-    ...state.candidate,
-    answers: state.answers,
-    typed: typed.value,
-    typingSeconds,
-    excelSent: $("excel-sent").checked,
-    timeUsedSeconds: (Date.now() - state.startedAt) / 1000,
-    timedOut,
-  };
-  try {
-    await api("submit", { method: "POST", body: JSON.stringify(payload) });
-    $("timer").classList.add("hidden");
-    show("done");
-  } catch (err) {
-    state.submitted = false;
-    $("submit-btn").disabled = false;
-    show("excel");
-    $("submit-error").textContent = err.message + " Please press Submit again.";
+document.addEventListener("change", e=>{
+  const t=e.target;
+  if(t.name && /^q\d+$/.test(t.name)){
+    const i=+t.name.slice(1); S.p1[i]=+t.value;
+    if(S.active){ S.active.p1=S.p1; saveActive(); }
+    t.closest(".opts").querySelectorAll(".opt").forEach(o=>o.classList.toggle("sel",o.querySelector("input").checked));
   }
-}
-
-// ---------------- HR side ----------------
-let pin = sessionStorage.getItem("hrPin") || "";
-const hrApi = (path, opts = {}) => api("hr/" + path, { ...opts, headers: { "x-hr-pin": pin } });
-
-$("open-hr").onclick = () => { if (pin) openHr(); else { show("hr-login"); $("hr-pin").focus(); } };
-$("hr-back").onclick = () => show("home");
-$("hr-pin").addEventListener("keydown", (e) => { if (e.key === "Enter") $("hr-login-btn").click(); });
-$("hr-login-btn").onclick = async () => {
-  pin = $("hr-pin").value.trim();
-  $("hr-login-error").textContent = "";
-  try {
-    await hrApi("login", { method: "POST" });
-    sessionStorage.setItem("hrPin", pin);
-    $("hr-pin").value = "";
-    openHr();
-  } catch (err) {
-    pin = "";
-    $("hr-login-error").textContent = err.message;
+  if(t.id==="f-post"){ S.filter.post=t.value; renderRows(); }
+  if(t.id==="h-dec"){ S.draft.decision=t.value; S.dirty=true; keepScroll(); }
+});
+document.addEventListener("input", e=>{
+  const t=e.target;
+  if(t.id==="f-q"){ S.filter.q=t.value; renderRows(); }
+  if(t.id==="typebox") S.p3.typed=t.value;
+  if(t.id==="h-notes"){ S.draft.notes=t.value; if(!S.dirty){ S.dirty=true; const bar=$(".savebar"); if(bar){ bar.querySelector("span").innerHTML="<b>Unsaved changes</b>"; bar.querySelector("button").disabled=false; } } }
+});
+document.addEventListener("paste", e=>{ if(e.target.id==="typebox"){ e.preventDefault(); toast("Paste is turned off for the typing test."); } });
+document.addEventListener("drop", e=>{ if(e.target.id==="typebox") e.preventDefault(); });
+document.addEventListener("submit", async e=>{
+  e.preventDefault();
+  const f=e.target;
+  if(f.id==="f-details") startCandidate();
+  else if(f.id==="f-pin") pinSubmit();
+  else if(f.id==="f-tasks"){
+    try{ S.cfg=await hrApi("PUT","settings",{taskEmail:$("#s-email").value.trim()}); toast("Saved"); }
+    catch(err){ toast(err.message); }
   }
-};
-$("hr-logout").onclick = () => { pin = ""; sessionStorage.removeItem("hrPin"); show("home"); };
-$("hr-refresh").onclick = () => loadCandidates();
-
-async function openHr() {
-  show("hr");
-  $("set-email").value = settings.excelEmail || "";
-  loadCandidates();
-}
-
-const typingPoints = (t) => Math.min(10, Math.round(((t?.netWpm || 0) / 4) * 10) / 10);
-function totalScore(c) {
-  const excel = c.hr?.excelScore;
-  return { value: c.quiz.correct + typingPoints(c.typing) + (excel ?? 0), pending: excel == null };
-}
-
-let quizKey = [];
-async function loadCandidates() {
-  const box = $("hr-list");
-  try {
-    const data = await hrApi("candidates");
-    quizKey = data.quizKey;
-    if (!data.candidates.length) { box.innerHTML = '<p class="muted">No candidates yet.</p>'; return; }
-    box.innerHTML = data.candidates.map(renderCandidate).join("");
-  } catch (err) {
-    if (/PIN/i.test(err.message)) { pin = ""; sessionStorage.removeItem("hrPin"); show("hr-login"); $("hr-login-error").textContent = err.message; return; }
-    box.innerHTML = `<p class="error">${esc(err.message)}</p>`;
-  }
-}
-
-function renderCandidate(c) {
-  const t = totalScore(c);
-  const when = new Date(c.submittedAt).toLocaleString();
-  const decision = c.hr?.decision;
-  const mins = Math.floor(c.timeUsedSeconds / 60), secs = c.timeUsedSeconds % 60;
-  const answers = QUIZ.map((item, i) => {
-    const a = c.answers[i];
-    const ok = a === quizKey[i];
-    return `<tr><td>${i + 1}. ${esc(item.q)}</td><td class="${ok ? "right" : "wrong"}">${a == null ? "No answer" : esc(item.o[a])}</td><td>${esc(item.o[quizKey[i]])}</td></tr>`;
-  }).join("");
-  return `
-  <details class="cand" data-id="${esc(c.id)}">
-    <summary>
-      <div><b>${esc(c.name)}</b> ${decision ? `<span class="pill ${decision}">${decision}</span>` : ""}<br>
-        <span class="muted">${esc(c.phone)}${c.email ? " · " + esc(c.email) : ""}${c.position ? " · " + esc(c.position) : ""} · ${when}</span></div>
-      <div class="score">${t.value.toFixed(1)} / 30${t.pending ? ' <span class="pill">Excel not scored</span>' : ""}</div>
-    </summary>
-    <div class="stats">
-      <div class="stat">Quiz<b>${c.quiz.correct} / ${c.quiz.total}</b></div>
-      <div class="stat">Typing speed<b>${c.typing.netWpm} WPM</b><span class="muted">${c.typing.accuracy}% accurate, ${c.typing.completion}% done</span></div>
-      <div class="stat">Typing points<b>${typingPoints(c.typing)} / 10</b></div>
-      <div class="stat">Excel emailed<b>${c.excelSent ? "Yes" : "No"}</b></div>
-      <div class="stat">Time used<b>${mins}m ${secs}s</b>${c.timedOut ? '<span class="wrong">Ran out of time</span>' : ""}</div>
-    </div>
-    <details><summary class="link">Show quiz answers</summary>
-      <table><thead><tr><th>Question</th><th>Candidate</th><th>Correct</th></tr></thead><tbody>${answers}</tbody></table>
-    </details>
-    <details><summary class="link">Show typed text</summary><p class="passage" style="user-select:text">${esc(c.typed) || "<i>Nothing typed</i>"}</p></details>
-    <div class="grid2">
-      <div><label>Excel score (0–10)</label><input type="number" min="0" max="10" step="0.5" class="f-excel" value="${c.hr?.excelScore ?? ""}" /></div>
-      <div><label>Decision</label>
-        <select class="f-decision">
-          ${[["", "Not decided"], ["hire", "Hire"], ["maybe", "Maybe"], ["reject", "Reject"]].map(([v, l]) => `<option value="${v}" ${v === (decision || "") ? "selected" : ""}>${l}</option>`).join("")}
-        </select></div>
-    </div>
-    <label>Notes</label><textarea class="f-notes" style="min-height:70px">${esc(c.hr?.notes)}</textarea>
-    <p class="muted f-msg"></p>
-    <div class="row">
-      <button onclick="saveScore('${esc(c.id)}')">Save score</button>
-      <button class="danger" onclick="removeCandidate('${esc(c.id)}')">Delete</button>
-    </div>
-  </details>`;
-}
-
-async function saveScore(id) {
-  const el = document.querySelector(`.cand[data-id="${id}"]`);
-  const msg = el.querySelector(".f-msg");
-  try {
-    await hrApi("candidates/" + id, {
-      method: "PATCH",
-      body: JSON.stringify({
-        excelScore: el.querySelector(".f-excel").value,
-        decision: el.querySelector(".f-decision").value,
-        notes: el.querySelector(".f-notes").value,
-      }),
-    });
-    msg.textContent = "Saved.";
-    await loadCandidates();
-    const again = document.querySelector(`.cand[data-id="${id}"]`);
-    if (again) again.open = true;
-  } catch (err) { msg.textContent = err.message; }
-}
-
-async function removeCandidate(id) {
-  if (!confirm("Delete this candidate? This cannot be undone.")) return;
-  try { await hrApi("candidates/" + id, { method: "DELETE" }); loadCandidates(); }
-  catch (err) { alert(err.message); }
-}
-
-$("set-save").onclick = async () => {
-  try {
-    const s = await hrApi("settings", { method: "PUT", body: JSON.stringify({ excelEmail: $("set-email").value }) });
-    settings.excelEmail = s.excelEmail;
-    $("excel-email").textContent = s.excelEmail || "the HR team";
-    $("set-msg").textContent = "Saved.";
-  } catch (err) { $("set-msg").textContent = err.message; }
-};
+});
+window.addEventListener("beforeunload", e=>{ if(S.dirty){ e.preventDefault(); e.returnValue=""; } });
 </script>
 </body>
 </html>
